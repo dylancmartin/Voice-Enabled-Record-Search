@@ -23,6 +23,6 @@ In the Alexa Developer Portal, each intent was made specific to a record type so
 \
 In the Amazaon Developer Console, a trigger needs to be set for Alexa Skills Kit with the skill id of the Alexa skill. With the given directory imported into the console, and role given to the lambda function (in this case, a dummy role can be provided since the function doesn't need to operate outside of it's current capacity). A single method is used to interact with the three defined intents, since they all serve the same relative purpose. The method parses and forms a string in letters and numbers. In order to prepare the information for extraction to 3rd party software, SSML, an XML-based markup language, is used to present the resulting information vocally while maintaining the data in the best format. For more information on SSML, [click here](https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html).
 \
-Lastly, the file *dictionaries.py* contains the python dictionaries for translating NATO phonetic/US Law Enforcement words to letters, and translating states to their repsective abbreviations.
+Lastly, the file *dictionaries.py* contains the python dictionaries for translating NATO phonetic/US Law Enforcement words to letters, and translating states to their respective abbreviations.
 
 For any further questions, contact Chase Peak at **cpeak@calpoly.edu**.
