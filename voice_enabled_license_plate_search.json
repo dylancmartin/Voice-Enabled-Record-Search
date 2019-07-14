@@ -1,0 +1,103 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "record search",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "cancel intent",
+                        "cancel search",
+                        "cancel"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "stop search",
+                        "stop query",
+                        "end program",
+                        "close program",
+                        "stop"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "ParseLicensePlate",
+                    "slots": [
+                        {
+                            "name": "state",
+                            "type": "AMAZON.US_STATE"
+                        },
+                        {
+                            "name": "record_info",
+                            "type": "RecordInformation"
+                        }
+                    ],
+                    "samples": [
+                        "run {state} license plate {record_info}"
+                    ]
+                },
+                {
+                    "name": "ParseId",
+                    "slots": [
+                        {
+                            "name": "state",
+                            "type": "AMAZON.US_STATE"
+                        },
+                        {
+                            "name": "record_info",
+                            "type": "RecordInformation"
+                        }
+                    ],
+                    "samples": [
+                        "run {state} identity card {record_info}",
+                        "run {state} identification card {record_info}",
+                        "run {state}  i. d. {record_info}"
+                    ]
+                },
+                {
+                    "name": "ParseDriversLicense",
+                    "slots": [
+                        {
+                            "name": "state",
+                            "type": "AMAZON.US_STATE"
+                        },
+                        {
+                            "name": "record_info",
+                            "type": "RecordInformation"
+                        }
+                    ],
+                    "samples": [
+                        "run {state} driving license {record_info}",
+                        "run {state} drivers license {record_info}"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "RecordInformation",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "zulu x-ray yankee nine eight seven"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "alpha bravo Charlie one two three"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

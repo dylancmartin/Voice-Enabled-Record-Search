@@ -1,22 +1,7 @@
-import json
+from dictionaries import phonetic_alphabet, states
 import traceback
 import random
-
-
-reprompt_texts = ["What else can I do for you?", "Is that all?", "Is that everything?",
-                    "Anything else?", "Is there another license plate I can translate for you?",
-                    "What other license plate can I help with?"]
-
-phonetic_alphabet = {"alpha": "A", "adam": "A", "boy": "B", "bravo": "B", "charlie": "C",
-    "delta": "D", "david": "D", "echo": "E", "edward": "E", "foxtrot": "F", "frank": "F",
-    "golf": "G", "george": "G", "hotel": "H", "henry": "H", "india": "I", "ida": "I",
-    "juliette": "J", "john": "J", "kilo": "K", "king": "K", "lima": "L", "lincoln": "L",
-    "mike": "M", "mary": "M", "november": "N", "nora": "N", "oscar": "O", "ocean": "O",
-    "papa": "P", "paul": "P", "quebec": "Q", "queen": "Q", "romeo": "R", "robert": "R",
-    "sierra": "S", "sam": "S", "tango": "T", "tom": "T", "uniform": "U", "union": "U",
-    "victor": "V", "whiskey": "W", "william": "W", "x-ray": "X","yankee": "Y", 
-    "young": "Y", "zulu": "Z", "zebra": "Z"
-}
+import json
 
 
 #event: The event object, describing the type and attributes of the event
@@ -24,90 +9,98 @@ phonetic_alphabet = {"alpha": "A", "adam": "A", "boy": "B", "bravo": "B", "charl
 #return: speech and card info to Alexa Skill
 def lambda_handler(event, context):
     try:
-        if event['request']['type'] == "LaunchRequest":
-            return welcome_response()
-        elif event['request']['type'] == "IntentRequest":
+        if event['request']['type'] == "IntentRequest":
             return handle_intent(event['request'])
+        elif event['request']['type'] == "LaunchRequest":
+            return welcome_response()
         elif event['request']['type'] == "SessionEndRequest":
             return handle_session_end(event['request'], event['session'])
     except:
         return error_response(True)
+
 
 #end_request: request identification value
 #session: the session associated with the end request
 def handle_session_end(end_request, session):
     card_title = "Session Ended"
     speech_output = "License plate search program closing."
-    return build_response({}, build_speech_response(card_title, speech_output,
-        speech_output, True))
+    return build_response({}, build_speech_response(card_title, speech_output, True))
+
 
 def welcome_response():
     card_title = "Welcome"
-    speech_output = ("Hello. I am here to assist you with translating strings of " +
-    "NATO phonetic words into license plate formats. What would you like to start " +
-    "with?")
-    reprompt_output = "What would you like for me to translate?"
-    return build_response({}, build_speech_response(card_title, speech_output,
-        reprompt_output, False))
+    speech_output = "<speak>Hello. What should I run?</speak>"
+    return build_response({}, build_speech_response(card_title, speech_output, False))
 
-#intent_request: data specific to the invokedintent
+
+#intent_request: data specific to the invoked intent
 #return: call to the intent-specific function
 def handle_intent(intent_request):
     try:
         intent_name = intent_request['intent']['name']
         intent_slots = intent_request['intent']['slots']
-        if intent_name == "decodePhonetics":
-            return decode_phonetics(intent_slots)
+        if intent_name == "ParseLicensePlate":
+            return decode_official_record(intent_slots, "license plate")
+        elif intent_name == "ParseId":
+            return decode_official_record(intent_slots, "ID")
+        elif intent_name == "ParseDriversLicense":
+            return decode_official_record(intent_slots, "drivers license")
         else:
             raise ValueError("Invalid intent.")
     except:
         return error_response()
 
 
-def decode_phonetics(intent_slots):
+def decode_official_record(intent_slots, record_type):
     try:
-        state = intent_slots['state']['value']
-        phonetic_words = (intent_slots['license_plate']['value']).split()
-        license_plate = ""
+        phonetic_string = intent_slots['record_info']['value']
+        phonetic_words = phonetic_string.split()
+
+        initial_state = intent_slots['state']['value']
+        state_string = initial_state.split()
+        state = state_string[0] if len(state_string) != 1 else initial_state
+        state_abbrev = states.get(state.lower())
+
+        record_info = ""
         for word in phonetic_words:
             digit = phonetic_alphabet.get(word.lower(), None)
-            if not digit: #outer try/except statement will catch error if word cant be evaluated
-                number = eval(word)
+            if not digit: #checks for values not appearing in the phonetic dictionary
                 number_string = ""
-                if type(number) == int:
-                    while number / 10 > 0:
-                        number_string = str(number % 10) + " " + number_string
-                        number //= 10
-                    license_plate += number_string
+                for number in word:
+                    eval(number) #this forces an error when an invalid value has been give
+                    number_string += number
+                record_info += number_string
             else:
-                license_plate += str(digit) + " "
-        output_speech = str(state) + " license plate " + license_plate
-        return build_answer(output_speech)
+                record_info += digit
+
+        output_text = state_abbrev + " " + record_type + " " + record_info #necessary record information
+        output_speech = '<speak><sub alias="' + state + '\">' + state_abbrev + '</sub> ' + record_type + ' <say-as interpret-as="spell-out">' + record_info + '</say-as></speak>'
+        return build_answer(output_speech, output_text)
     except:
-        return error_response(phonetic_string)
+        return error_response(False, phonetic_string, initial_state, record_type)
 
 
-def error_response(phonetic_string = None, should_end_session = False):
+def error_response(should_end_session = False, phonetic_string = None, state = None, record_type = None):
     traceback.print_exc()
-    if type(phonetic_string) == str:
-        output_speech = "There was in a error in processing " + str(phonetic_string)
+    if phonetic_string:
+        output_speech = ("<speak>There was in a error in processing " + str(phonetic_string) +
+        " as a " + state + " " + record_type + "</speak>")
     else:
-        output_speech = "Sorry, but I was unable to process your intended request"
-    return build_response({}, build_speech_response("Error in processing your request", 
-        output_speech, output_speech, should_end_session))
+        output_speech = "<speak>Sorry, but I was unable to process your intended request</speak>"
+    return build_response({}, build_speech_response("Error in processing your request.", 
+        output_speech, should_end_session))
 
 
-def build_answer(speech_output):
-    index = random.randint(0, len(reprompt_texts) - 1)
-    return build_response({}, build_speech_response("License Plate: ", speech_output,
-        reprompt_texts[index], False))
+def build_answer(speech_output, output_text):
+    return build_response({}, build_speech_response("Record information: ",
+        speech_output, False, output_text))
 
 
-def build_speech_response(title, output, reprompt_text, should_end_session):
+def build_speech_response(title, output, should_end_session, output_text = None):
     return {
-        "outputSpeech": {"type": "PlainText", "text": output},
-        "card": {"type": "Standard", "title": title, "context": output, "text": output},
-        "reprompt": {"outputSpeech": {"type": "PlainText", "text": reprompt_text}},
+        "outputSpeech": {"type": "SSML", "ssml": output},
+        "card": {"type": "Standard", "title": title, "context": "", "text": output_text},
+        "reprompt": {"outputSpeech": {"type": "SSML", "ssml": output}},
         "shouldEndSession": should_end_session
     }
 

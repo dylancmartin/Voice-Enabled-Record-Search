@@ -22,6 +22,7 @@ the voice\_enabled\_license\_plate\_search.json file (to be added at a later dat
 I'll explain the intent relevant to this Alexa Skill and how it was implemented:
 
 - decodePhonetics:
+\
 The purpose for this intent is to take as input the state and license plate
 information (in the form of NATO/US Law Enforcement phonetics) and output
 said information where the license plate is formatted as a string of numbers
@@ -34,7 +35,7 @@ Instead, it is set as required to fulfill the intent, and the user is prompted
 for a response to provide the related state following the input of the license
 plate information. For more information on slot types and when/where to use them,
 check out this [link](https://developer.amazon.com/docs/custom-skills/slot-type-reference.html).
-
+\
 Lastly, the portion related to the Amazon Developer Console can be found within
 the file lambda\_function.py under the method *decode_phonetics(intent_slots)*.
 The argument that it takes contains the necessary information on the state
