@@ -1,46 +1,28 @@
-# Voice-Enabled-License-Plate-Search
+```                                                                                
+Chase Peak                                                                         
+Cal Poly Digital Transformation Hub                                                
+```                                                                                
 
-## Overview
+# Voice-Enabled-License-Plate-Search                                               
 
-The goal for this program is to take as input numbers and words from a phonetic
-alphabet (ex. NATO phonetic alphabet), and return a string that represents the
-user's input as a license plate. For example, the user may initiate a
-correspondence with Alexa by saying "run license plate alpha bravo charlie one
-two three", and the output would be ABC123 (in the form of a license plate.)
+## Overview                                                                        
 
-This process will be carried out through an Alexa Skill and a lambda function.
-The Alexa Skill will be the front-end to the application, interacting with the
-user and accepting their input. On the other hand, the lambda function will be
-parsing and formatting a new response string to either give the license plate
-string, or to respond with any errors that may have occurred.
+The goal for this program is to take as input numbers and words from a phonetic alphabet (ex. NATO phonetic alphabet), and return a string that represents the user's input as a license plate, or other official record. For example, the user may initiate a correspondence with Alexa by saying "run license plate alpha bravo charlie one two three", and the output would be ABC123.
 
-**Decoding NATO/US Law Enforcement Phonetics**
+This process will be carried out through an Alexa Skill and a lambda function.  The Alexa Skill will be the front-end to the application, interacting with the user and accepting their input. On the other hand, the lambda function will be parsing and formatting a new response string to either give the license plate string, or to respond with any errors that may have occurred, such as giving record information not based on the NATO/ US Law Enforcement Phonetic Alphabet..
 
-This portion of the project is done in two parts: the Alexa Developer Portal,
-and the Amazon Developer Console. The file from the former can be found within
-the voice\_enabled\_license\_plate\_search.json file (to be added at a later date).
-I'll explain the intent relevant to this Alexa Skill and how it was implemented:
+**Decoding NATO/US Law Enforcement Phonetics**                                     
 
-- decodePhonetics:
+This portion of the project is done in two parts: the Alexa Developer Portal, and the Amazon Developer Console. The file from the former can be found within the voice\_enabled\_license\_plate\_search.json file. I'll explain the intents relevant to this Alexa Skill and how it was implemented:
+
+- ParseLicensePlate/ParseId/ParseDriversLicense:
 \
-The purpose for this intent is to take as input the state and license plate
-information (in the form of NATO/US Law Enforcement phonetics) and output
-said information where the license plate is formatted as a string of numbers
-and letters. In order to do so, the slot *license_plate* was established with
-the *AMAZON.SearchQuery* Slot Type so that it could gather the entire phrase
-of words detailing the license plate. Because Amazon does not allow for a
-sample utterance to contain more than one slot when the *AMAZON.SearchQuery*
-slot type is in use, the *state* slot is not included in the sample utterances.
-Instead, it is set as required to fulfill the intent, and the user is prompted
-for a response to provide the related state following the input of the license
-plate information. For more information on slot types and when/where to use them,
-check out this [link](https://developer.amazon.com/docs/custom-skills/slot-type-reference.html).
+Three intents are being utilized in order to gather information based on the three basic record types that US Law Enforcement would need to identify. The process was carried about by establishing three individual intents for each of the types of record, and then merging each of them into a single method in the lambda function.                        
 \
-Lastly, the portion related to the Amazon Developer Console can be found within
-the file lambda\_function.py under the method *decode_phonetics(intent_slots)*.
-The argument that it takes contains the necessary information on the state
-and license plate that the user identified. For a general overview of the
-method, it takes advantage of a dictionary containing all possible connections
-between key words and their respective letters in order to translate the license
-plate. In doing so, it forms the returned string variable containing the
-decoded license plate and its related state.
+In the Alexa Developer Portal, each intent was made specific to a record type so that, in the creation of sample utterances, natural buffers would be put in between slots. In doing this, we can avoid a misinterpretation of the values we hope for each of the slots to grab. For example, creating the sample utterance "run {state} {record\_type} {record\_info}." offers no hard-coded words between slots that Alexa could use to distinguish information meant for each of the slots. Also, we avoid forming awkward-to-speak utterances by forcing cushions between slots like "run state {state} record type {record\_type} record information {record\_info}."
+\
+In the Amazaon Developer Console, a trigger needs to be set for Alexa Skills Kit with the skill id of the Alexa skill. With the given directory imported into the console, and role given to the lambda function (in this case, a dummy role can be provided since the function doesn't need to operate outside of it's current capacity). A single method is used to interact with the three defined intents, since they all serve the same relative purpose. The method parses and forms a string in letters and numbers. In order to prepare the information for extraction to 3rd party software, SSML, an XML-based markup language, is used to present the resulting information vocally while maintaining the data in the best format. For more information on SSML, [click here](https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html).
+\
+Lastly, the file *dictionaries.py* contains the python dictionaries for translating NATO phonetic/US Law Enforcement words to letters, and translating states to their repsective abbreviations.
+
+For any further questions, contact Chase Peak at **cpeak@calpoly.edu**.
